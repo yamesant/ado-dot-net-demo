@@ -1,0 +1,1 @@
+This is a short demo of using ADO.NET to insert and query data against a SQLite database.
