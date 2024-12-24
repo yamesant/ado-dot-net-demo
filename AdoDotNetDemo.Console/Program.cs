@@ -9,3 +9,8 @@ builder.ConfigureServices((context, services) =>
 });
 IHost app = builder.Build();
 Repository repository = app.Services.GetRequiredService<Repository>();
+
+// Ping
+bool pingResult = await repository.Ping();
+Console.WriteLine($"Can access database: {pingResult}");
+if (!pingResult) return;
