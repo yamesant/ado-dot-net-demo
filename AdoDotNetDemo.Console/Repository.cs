@@ -33,4 +33,40 @@ public sealed class Repository
             return false;
         }
     }
+    
+    public async Task<bool> Setup()
+    {
+        try
+        {
+            await using SqliteConnection connection = new(_connectionString);
+            await using SqliteCommand command = connection.CreateCommand();
+            command.CommandText = """
+                                  BEGIN TRANSACTION;
+
+                                  CREATE TABLE IF NOT EXISTS AchievementClass (
+                                      Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                      Name TEXT NOT NULL,
+                                      Unit TEXT NOT NULL
+                                  );
+
+                                  CREATE TABLE IF NOT EXISTS Achievement (
+                                      Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                      AchievementClassId INTEGER NOT NULL,
+                                      CompletedDate TEXT NOT NULL,
+                                      Quantity INTEGER NOT NULL,
+                                      RecordedDate TEXT NOT NULL,
+                                      FOREIGN KEY (AchievementClassId) REFERENCES AchievementClass(Id)
+                                  );
+
+                                  COMMIT;
+                                  """;
+            await connection.OpenAsync();
+            await command.ExecuteNonQueryAsync();
+            return true;
+        }
+        catch (Exception e)
+        {
+            return false;
+        }
+    }
 }

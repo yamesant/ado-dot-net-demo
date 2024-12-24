@@ -14,3 +14,8 @@ Repository repository = app.Services.GetRequiredService<Repository>();
 bool pingResult = await repository.Ping();
 Console.WriteLine($"Can access database: {pingResult}");
 if (!pingResult) return;
+
+// Setup
+bool setupResult = await repository.Setup();
+Console.WriteLine($"Completed setup: {setupResult}");
+if (!setupResult) return;
