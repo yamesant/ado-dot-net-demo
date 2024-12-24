@@ -19,3 +19,47 @@ if (!pingResult) return;
 bool setupResult = await repository.Setup();
 Console.WriteLine($"Completed setup: {setupResult}");
 if (!setupResult) return;
+
+// Insert achievement class
+AchievementClass achievementClass = new() { Name = "Drink water", Unit = "Glass" };
+AchievementClass? achievementClassResult = await repository.InsertAchievementClass(achievementClass);
+if (achievementClassResult is null)
+{
+    Console.WriteLine("Failed to insert achievement class");
+    return;
+}
+
+Console.WriteLine($"Inserted achievement class: {achievementClassResult}");
+
+// Insert achievements
+Achievement[] achievements =
+[
+    new()
+    {
+        AchievementClass = achievementClassResult,
+        CompletedDate = DateOnly.FromDateTime(DateTime.UtcNow),
+        Quantity = 2,
+    },
+    new()
+    {
+        AchievementClass = achievementClassResult,
+        CompletedDate = DateOnly.FromDateTime(DateTime.UtcNow),
+        Quantity = 1,
+    },
+    new()
+    {
+        AchievementClass = achievementClassResult,
+        CompletedDate = DateOnly.FromDateTime(DateTime.UtcNow),
+        Quantity = 1,
+    },
+];
+foreach (Achievement achievement in achievements)
+{
+    Achievement? achievementResult = await repository.InsertAchievement(achievement);
+    if (achievementResult is null)
+    {
+        Console.WriteLine($"Failed to insert achievement {achievement}");
+        return;
+    }
+}
+Console.WriteLine("Successfully inserted achievements");

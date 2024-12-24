@@ -69,4 +69,54 @@ public sealed class Repository
             return false;
         }
     }
+    
+    public async Task<AchievementClass?> InsertAchievementClass(AchievementClass achievementClass)
+    {
+        try
+        {
+            await using SqliteConnection connection = new(_connectionString);
+            await using SqliteCommand command = connection.CreateCommand();
+            command.CommandText = """
+                                  INSERT INTO AchievementClass (Name, Unit) VALUES (@Name, @Unit);
+                                  SELECT last_insert_rowid() AS Id;
+                                  """;
+            command.Parameters.AddWithValue("@Name", achievementClass.Name);
+            command.Parameters.AddWithValue("@Unit", achievementClass.Unit);
+            await connection.OpenAsync();
+            object? output = await command.ExecuteScalarAsync();
+            if (output is null) return null;
+            achievementClass.Id = (long)output;
+            return achievementClass;
+        }
+        catch (Exception e)
+        {
+            return null;
+        }
+    }
+
+    public async Task<Achievement?> InsertAchievement(Achievement achievement)
+    {
+        try
+        {
+            await using SqliteConnection connection = new(_connectionString);
+            await using SqliteCommand command = connection.CreateCommand();
+            command.CommandText = """
+                                  INSERT INTO Achievement (AchievementClassId, CompletedDate, Quantity, RecordedDate)
+                                  VALUES (@AchievementClassId, @CompletedDate, @Quantity, datetime('now'));
+                                  SELECT last_insert_rowid() AS Id;
+                                  """;
+            command.Parameters.AddWithValue("@AchievementClassId", achievement.AchievementClass.Id);
+            command.Parameters.AddWithValue("@CompletedDate", achievement.CompletedDate);
+            command.Parameters.AddWithValue("@Quantity", achievement.Quantity);
+            await connection.OpenAsync();
+            object? output = await command.ExecuteScalarAsync();
+            if (output is null) return null;
+            achievement.Id = (long)output;
+            return achievement;
+        }
+        catch (Exception e)
+        {
+            return null;
+        }
+    }
 }
