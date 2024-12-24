@@ -119,4 +119,43 @@ public sealed class Repository
             return null;
         }
     }
+    
+    public async Task<Achievement[]> GetAchievements(AchievementClass achievementClass)
+    {
+        try
+        {
+            await using SqliteConnection connection = new(_connectionString);
+            await using SqliteCommand command = connection.CreateCommand();
+            command.CommandText = """
+                                  SELECT Id, CompletedDate, Quantity
+                                  FROM Achievement
+                                  WHERE AchievementClassId = @AchievementClassId
+                                  """;
+            command.Parameters.AddWithValue("@AchievementClassId", achievementClass.Id);
+            await connection.OpenAsync();
+            SqliteDataReader reader = await command.ExecuteReaderAsync();
+            List<Achievement> achievements = new();
+            while (await reader.ReadAsync())
+            {
+                long id = reader.GetInt64(reader.GetOrdinal("Id"));
+                DateTime completedDate = reader.GetDateTime(reader.GetOrdinal("CompletedDate"));
+                DateOnly completedDateOnly = DateOnly.FromDateTime(completedDate);
+                int quantity = reader.GetInt32(reader.GetOrdinal("Quantity"));
+                Achievement achievement = new()
+                {
+                    Id = id,
+                    AchievementClass = achievementClass,
+                    CompletedDate = completedDateOnly,
+                    Quantity = quantity,
+                };
+                achievements.Add(achievement);
+            }
+
+            return achievements.ToArray();
+        }
+        catch (Exception e)
+        {
+            return [];
+        }
+    }
 }

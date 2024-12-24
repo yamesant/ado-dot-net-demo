@@ -63,3 +63,15 @@ foreach (Achievement achievement in achievements)
     }
 }
 Console.WriteLine("Successfully inserted achievements");
+
+// Query achievements
+Console.WriteLine("Querying achievements");
+Achievement[] queriedAchievements = await repository.GetAchievements(achievementClassResult);
+if (queriedAchievements.Length == 0)
+{
+    Console.WriteLine("No achievements found");
+}
+foreach (Achievement achievement in queriedAchievements)
+{
+    Console.WriteLine($"Found achievement: {achievement}");
+}
